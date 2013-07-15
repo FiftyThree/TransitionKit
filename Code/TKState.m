@@ -22,10 +22,12 @@
 
 @interface TKState ()
 @property (nonatomic, copy, readwrite) NSString *name;
+@property (nonatomic, assign) NSTimeInterval timeoutDuration;
 @property (nonatomic, copy) void (^willEnterStateBlock)(TKState *state, TKStateMachine *stateMachine);
 @property (nonatomic, copy) void (^didEnterStateBlock)(TKState *state, TKStateMachine *stateMachine);
 @property (nonatomic, copy) void (^willExitStateBlock)(TKState *state, TKStateMachine *stateMachine);
 @property (nonatomic, copy) void (^didExitStateBlock)(TKState *state, TKStateMachine *stateMachine);
+@property (nonatomic, copy) void (^timeoutExpiredBlock)(TKState *state, TKStateMachine *stateMachine);
 @end
 
 @implementation TKState
@@ -35,6 +37,13 @@
     if (! [name length]) [NSException raise:NSInvalidArgumentException format:@"The `name` cannot be blank."];
     TKState *state = [TKState new];
     state.name = name;
+    return state;
+}
+
++ (instancetype)stateWithName:(NSString *)name andTimeoutDuration:(NSTimeInterval)timeoutDuration
+{
+    TKState *state = [TKState stateWithName:name];
+    state.timeoutDuration = timeoutDuration;
     return state;
 }
 
@@ -49,10 +58,12 @@
 {
     TKState *copiedState = [[[self class] allocWithZone:zone] init];
     copiedState.name = self.name;
+    copiedState.timeoutDuration = self.timeoutDuration;
     copiedState.willEnterStateBlock = self.willEnterStateBlock;
     copiedState.didEnterStateBlock = self.didEnterStateBlock;
     copiedState.willExitStateBlock = self.willExitStateBlock;
     copiedState.didExitStateBlock = self.didExitStateBlock;
+    copiedState.timeoutExpiredBlock = self.timeoutExpiredBlock;
     return copiedState;
 }
 
@@ -66,12 +77,14 @@
     }
     
     self.name = [aDecoder decodeObjectForKey:@"name"];
+    self.timeoutDuration = [aDecoder decodeDoubleForKey:@"timoutDuration"];
     return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
     [aCoder encodeObject:self.name forKey:@"name"];
+    [aCoder encodeDouble:self.timeoutDuration forKey:@"timeoutDuration"];
 }
 
 @end

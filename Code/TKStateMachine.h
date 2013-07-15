@@ -120,6 +120,11 @@
  */
 - (BOOL)isInState:(id)stateOrStateName;
 
+/**
+ Resets the state timeout timer on the current state. This leaves the timer as if the state has just been entered.
+ */
+- (void)resetStateTimeoutTimer;
+
 ///----------------------
 /// @name Managing Events
 ///----------------------

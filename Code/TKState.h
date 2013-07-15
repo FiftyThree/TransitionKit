@@ -39,6 +39,15 @@
  */
 + (instancetype)stateWithName:(NSString *)name;
 
+/**
+ Creates and returns a new state object with the specified name and timeout duration.
+ 
+ @param name The name of the state. Cannot be blank.
+ @param timeoutDuration The timeout (in seconds) for the state.
+ @return A newly created state object with the specified name and timeout duration.
+ */
++ (instancetype)stateWithName:(NSString *)name andTimeoutDuration:(NSTimeInterval)timeoutDuration;
+
 ///------------------------------------
 /// @name Accessing the Name of a State
 ///------------------------------------
@@ -47,6 +56,12 @@
  The name of the receiver. Cannot be `nil` and must be unique within the state machine that the receiver is added to.
  */
 @property (nonatomic, copy, readonly) NSString *name;
+
+/**
+ * If the state is set as the current state for greater than this duration (in seconds) the timeout block
+ * set on the state will be called.
+ */
+@property (nonatomic, readonly) NSTimeInterval timeoutDuration;
 
 ///----------------------------------
 /// @name Configuring Block Callbacks
@@ -79,5 +94,12 @@
  @param block The block to executed after a state machine exit the receiver's state. The block has no return value and takes two arguments: the state object and the state machine that transitioned out of the receiver's state.
  */
 - (void)setDidExitStateBlock:(void (^)(TKState *state, TKStateMachine *stateMachine))block;
+
+/**
+ Sets a block to be executed after the state has been the current state for greater than the state's timeout duration.
+ 
+ @param block The block to executed after a state machine exit the receiver's state. The block has no return value and takes two arguments: the state object and the state machine that transitioned out of the receiver's state.
+ */
+- (void)setTimeoutExpiredBlock:(void (^)(TKState *state, TKStateMachine *stateMachine))block;
 
 @end

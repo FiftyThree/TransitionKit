@@ -33,6 +33,7 @@
 @property (nonatomic, copy) void (^didEnterStateBlock)(TKState *state, TKStateMachine *stateMachine);
 @property (nonatomic, copy) void (^willExitStateBlock)(TKState *state, TKStateMachine *stateMachine);
 @property (nonatomic, copy) void (^didExitStateBlock)(TKState *state, TKStateMachine *stateMachine);
+@property (nonatomic, copy) void (^timeoutExpiredBlock)(TKState *state, TKStateMachine *stateMachine);
 @end
 
 NSString *const TKErrorDomain = @"org.blakewatters.TransitionKit.errors";
@@ -56,6 +57,7 @@ static NSString *TKQuoteString(NSString *string)
 @property (nonatomic, strong) NSMutableSet *mutableEvents;
 @property (nonatomic, assign, getter = isActive) BOOL active;
 @property (nonatomic, strong, readwrite) TKState *currentState;
+@property (nonatomic, strong) NSTimer *stateTimeoutTimer;
 @end
 
 @implementation TKStateMachine
@@ -98,6 +100,35 @@ static NSString *TKQuoteString(NSString *string)
 {
     TKRaiseIfActive();
     _initialState = initialState;
+}
+
+- (void)setCurrentState:(TKState *)currentState
+{
+    _currentState = currentState;
+
+    [self resetStateTimeoutTimer];
+}
+
+- (void)resetStateTimeoutTimer
+{
+    [self.stateTimeoutTimer invalidate];
+    self.stateTimeoutTimer = nil;
+    
+    if (self.currentState.timeoutDuration > 0)
+    {
+        self.stateTimeoutTimer = [NSTimer scheduledTimerWithTimeInterval:self.currentState.timeoutDuration
+                                                                  target:self
+                                                                selector:@selector(stateTimeoutTimerFired:)
+                                                                userInfo:nil repeats:NO];
+    }
+}
+
+- (void)stateTimeoutTimerFired:(NSTimer *)timer
+{
+    if (self.currentState.timeoutExpiredBlock)
+    {
+        self.currentState.timeoutExpiredBlock(self.currentState, self);
+    }
 }
 
 - (NSSet *)states
