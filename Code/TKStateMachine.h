@@ -222,6 +222,16 @@ extern NSString *const TKErrorDomain;
 extern NSString *const TKStateMachineDidChangeStateNotification;
 
 /**
+ A Notification posted when the timeout of the `currentState` of a `TKStateMachine` object expires.
+ */
+extern NSString *const TKStateMachineStateTimeoutDidExpireNotification;
+
+/**
+ A key in the `userInfo` dictionary of a `TKStateMachineStateTimeoutDidExpireNotification` notification specifying the state of the machine that expired.
+ */
+extern NSString *const TKStateMachineStateTimeoutDidExpireUserInfoKey;
+
+/**
  A key in the `userInfo` dictionary of a `TKStateMachineDidChangeStateNotification` notification specifying the state of the machine before the transition occured.
  */
 extern NSString *const TKStateMachineDidChangeStateOldStateUserInfoKey;

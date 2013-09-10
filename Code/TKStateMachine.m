@@ -38,6 +38,8 @@
 
 NSString *const TKErrorDomain = @"org.blakewatters.TransitionKit.errors";
 NSString *const TKStateMachineDidChangeStateNotification = @"TKStateMachineDidChangeStateNotification";
+NSString *const TKStateMachineStateTimeoutDidExpireNotification = @"TKStateMachineStateTimeoutDidExpireNotification";
+NSString *const TKStateMachineStateTimeoutDidExpireUserInfoKey = @"expired";
 NSString *const TKStateMachineDidChangeStateOldStateUserInfoKey = @"old";
 NSString *const TKStateMachineDidChangeStateNewStateUserInfoKey = @"new";
 NSString *const TKStateMachineDidChangeStateEventUserInfoKey = @"event";
@@ -125,6 +127,9 @@ static NSString *TKQuoteString(NSString *string)
 
 - (void)stateTimeoutTimerFired:(NSTimer *)timer
 {
+    NSDictionary *userInfo = @{ TKStateMachineStateTimeoutDidExpireUserInfoKey: self.currentState };
+    [[NSNotificationCenter defaultCenter] postNotificationName:TKStateMachineStateTimeoutDidExpireNotification object:self userInfo:userInfo];
+    
     if (self.currentState.timeoutExpiredBlock)
     {
         self.currentState.timeoutExpiredBlock(self.currentState, self);
