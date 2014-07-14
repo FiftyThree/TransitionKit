@@ -260,13 +260,14 @@ static NSString *TKQuoteString(NSString *string)
     if (oldState.willExitStateBlock) oldState.willExitStateBlock(oldState, self);
     if (newState.willEnterStateBlock) newState.willEnterStateBlock(newState, self);
     self.currentState = newState;
+    
+    NSDictionary *userInfo = @{ TKStateMachineDidChangeStateOldStateUserInfoKey: oldState, TKStateMachineDidChangeStateNewStateUserInfoKey: newState, TKStateMachineDidChangeStateEventUserInfoKey: event };
+    [[NSNotificationCenter defaultCenter] postNotificationName:TKStateMachineDidChangeStateNotification object:self userInfo:userInfo];
+    
     if (oldState.didExitStateBlock) oldState.didExitStateBlock(oldState, self);
     if (newState.didEnterStateBlock) newState.didEnterStateBlock(newState, self);
     
     if (event.didFireEventBlock) event.didFireEventBlock(event, self);
-    
-    NSDictionary *userInfo = @{ TKStateMachineDidChangeStateOldStateUserInfoKey: oldState, TKStateMachineDidChangeStateNewStateUserInfoKey: newState, TKStateMachineDidChangeStateEventUserInfoKey: event };
-    [[NSNotificationCenter defaultCenter] postNotificationName:TKStateMachineDidChangeStateNotification object:self userInfo:userInfo];
     
     return YES;
 }
