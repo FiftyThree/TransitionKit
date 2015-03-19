@@ -21,6 +21,7 @@
 #import "TKStateMachine.h"
 #import "TKState.h"
 #import "TKEvent.h"
+#import "Core/NSTimer+Helpers.h"
 
 @interface TKEvent ()
 @property (nonatomic, copy) BOOL (^shouldFireEventBlock)(TKEvent *event, TKStateMachine *stateMachine);
@@ -118,10 +119,11 @@ static NSString *TKQuoteString(NSString *string)
     
     if (self.currentState.timeoutDuration > 0)
     {
-        self.stateTimeoutTimer = [NSTimer scheduledTimerWithTimeInterval:self.currentState.timeoutDuration
-                                                                  target:self
-                                                                selector:@selector(stateTimeoutTimerFired:)
-                                                                userInfo:nil repeats:NO];
+        self.stateTimeoutTimer = [NSTimer weakScheduledTimerWithTimeInterval:self.currentState.timeoutDuration
+                                                                      target:self
+                                                                    selector:@selector(stateTimeoutTimerFired:)
+                                                                    userInfo:nil
+                                                                     repeats:NO];
     }
 }
 
